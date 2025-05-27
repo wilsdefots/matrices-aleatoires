@@ -1,0 +1,50 @@
+---
+title: "Matrices Aléatoires"
+author: "Wilson F."
+format: html
+editor: visual
+---
+
+# Contexte
+
+Les réseaux de neurones profonds (DNN) sont au cœur des avancées récentes en intelligence artificielle. Malgré leurs performances remarquables, les fondements théoriques expliquant leur efficacité demeurent partiellement compris. En particulier, la structure interne des matrices de poids et leur évolution au cours de l’apprentissage font l’objet d’un intérêt croissant dans la communauté scientifique.
+
+C’est dans ce contexte que la théorie des matrices aléatoires (Random Matrix Theory, RMT) s’avère particulièrement pertinente. Elle fournit un cadre puissant pour analyser le comportement statistique de grandes matrices, notamment à travers l’étude de leurs valeurs propres ou valeurs singulières. Un résultat fondamental de cette théorie est la loi de Marchenko–Pastur, qui décrit la densité limite du spectre des matrices de covariance issues de matrices aléatoires à grande dimension.
+
+Plus précisément, si X est une matrice aléatoire de taille \$n \\times p\$ , dont les entrées sont indépendantes, identiquement distribuées, d'espérance nulle et de variance finie $\sigma^2$, alors, lorsque $n,p \rightarrow \infty$, avec \$\\frac{n}{p} \\rightarrow q \\in (0,\\infty)\$, la matrice de covariance \$Y_n = \\frac{1}{n}XX\^T\$ a un spectre dont la distribution limite suit la loi de Marchenko–Pastur. La densité de cette loi est donnée par :
+
+$$
+p_q(x) = 
+\begin{cases}
+\displaystyle
+\frac{1}{2\pi x q \sigma^2} \sqrt{(b - x)(x - a)} & \text{si } a \leq x \leq b \\
+0 & \text{sinon}
+\end{cases}
+$$
+
+avec \$a = \\sigma^2\ \ (1-\\sqrt{q})^2 \$ et \$b = \\sigma^2(1+\\sqrt{q})^2\$
+
+Cette distribution peut être interprétée comme le "comportement attendu" d’une matrice de covariance **purement aléatoire**, sans structure ni apprentissage. Ainsi, dans le contexte des réseaux de neurones, **tout écart** entre le spectre empirique des matrices de poids et la loi de Marchenko–Pastur peut signaler la présence de **structure apprise**, d’information ou de régularité.
+
+Ce projet s’appuie sur cette intuition pour analyser les matrices de poids d’un **perceptron multicouche (MLP)** entraîné sur le jeu de données **MNIST**. À différentes étapes de l'entraînement, les matrices de poids de chaque couche seront sauvegardées. Leurs **valeurs singulières** seront alors calculées, et leur **densité spectrale empirique** (Empirical Spectral Density, ESD) sera tracée. Ces spectres seront ensuite comparés à la densité théorique de Marchenko–Pastur, afin de mieux comprendre dans quelle mesure les matrices de poids d’un réseau profond se structurent et s’écartent du régime aléatoire au fil de l’apprentissage.
+
+la loi de Marchenko–Pastur joue un rôle central. Cette loi décrit la densité spectrale (Empirical Spectral Density, ESD) attendue des valeurs propres (ou singulières) d’une grande matrice aléatoire dont les entrées sont indépendantes et identiquement distribuées (i.i.d.) et de variance finie.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r echo=TRUE}
+#| echo: false
+2 * 2
+```
+
+### Références
+
+\[1\] BAI, Zhidong et SILVERSTEIN, Jack W., *Spectral analysis of large dimensional random matrices*, 2e éd., New York, Springer, 2010. (Springer Series in Statistics)
