@@ -5,13 +5,19 @@ format: html
 editor: visual
 ---
 
+```{r librairies, echo=FALSE,warning=FALSE, include=FALSE}
+library(tidyverse)
+library(knitr)
+
+```
+
 # Contexte
 
 Les réseaux de neurones profonds (DNN) sont au cœur des avancées récentes en intelligence artificielle. Malgré leurs performances remarquables, les fondements théoriques expliquant leur efficacité demeurent partiellement compris. En particulier, la structure interne des matrices de poids et leur évolution au cours de l’apprentissage font l’objet d’un intérêt croissant dans la communauté scientifique.
 
-C’est dans ce contexte que la théorie des matrices aléatoires (Random Matrix Theory, RMT) s’avère particulièrement pertinente. Elle fournit un cadre puissant pour analyser le comportement statistique de grandes matrices, notamment à travers l’étude de leurs valeurs propres ou valeurs singulières. Un résultat fondamental de cette théorie est la loi de Marchenko–Pastur, qui décrit la densité limite du spectre des matrices de covariance issues de matrices aléatoires à grande dimension.
+C’est dans ce contexte que la théorie des matrices aléatoires (Random Matrix Theory, RMT) s’avère particulièrement pertinente ; elle fournit des outils puissants pour analyser le comportement statistique de grandes matrices, notamment à travers l’étude de leurs valeurs propres ou valeurs singulières. Un résultat fondamental de cette théorie est la loi de Marchenko–Pastur, qui décrit la densité limite du spectre des matrices de covariance issues de matrices aléatoires à grande dimension.
 
-Plus précisément, si X est une matrice aléatoire de taille \$n \\times p\$ , dont les entrées sont indépendantes, identiquement distribuées, d'espérance nulle et de variance finie $\sigma^2$, alors, lorsque $n,p \rightarrow \infty$, avec \$\\frac{n}{p} \\rightarrow q \\in (0,\\infty)\$, la matrice de covariance \$Y_n = \\frac{1}{n}XX\^T\$ a un spectre dont la distribution limite suit la loi de Marchenko–Pastur. La densité de cette loi est donnée par :
+Plus précisément, si X est une matrice aléatoire de taille $n \times p$ , dont les entrées sont indépendantes, identiquement distribuées, d'espérance nulle et de variance finie $\sigma^2$, alors, lorsque $n,p \rightarrow \infty$, avec $\frac{n}{p} \rightarrow q \in (0,\infty)$, la matrice de covariance $Y_n = \frac{1}{n}XX^T$ a un spectre dont la distribution limite suit la loi de Marchenko–Pastur. La densité de cette loi est donnée par :
 
 $$
 p_q(x) = 
@@ -20,31 +26,74 @@ p_q(x) =
 \frac{1}{2\pi x q \sigma^2} \sqrt{(b - x)(x - a)} & \text{si } a \leq x \leq b \\
 0 & \text{sinon}
 \end{cases}
+\tag{1}
 $$
 
-avec \$a = \\sigma^2\ \ (1-\\sqrt{q})^2 \$ et \$b = \\sigma^2(1+\\sqrt{q})^2\$
+avec $a = \sigma^2 (1-\sqrt{q})^2$ et $b = \sigma ^2(1+\sqrt{q})^2$
 
-Cette distribution peut être interprétée comme le "comportement attendu" d’une matrice de covariance **purement aléatoire**, sans structure ni apprentissage. Ainsi, dans le contexte des réseaux de neurones, **tout écart** entre le spectre empirique des matrices de poids et la loi de Marchenko–Pastur peut signaler la présence de **structure apprise**, d’information ou de régularité.
+Cette distribution peut être interprétée comme le "comportement attendu" d’une matrice de covariance purement aléatoire, sans structure ni apprentissage. Ainsi, dans le contexte des réseaux de neurones, tout écart entre le spectre empirique des matrices de poids et la loi de Marchenko–Pastur peut signaler la présence de structure apprise, d’information ou de régularité.
 
-Ce projet s’appuie sur cette intuition pour analyser les matrices de poids d’un **perceptron multicouche (MLP)** entraîné sur le jeu de données **MNIST**. À différentes étapes de l'entraînement, les matrices de poids de chaque couche seront sauvegardées. Leurs **valeurs singulières** seront alors calculées, et leur **densité spectrale empirique** (Empirical Spectral Density, ESD) sera tracée. Ces spectres seront ensuite comparés à la densité théorique de Marchenko–Pastur, afin de mieux comprendre dans quelle mesure les matrices de poids d’un réseau profond se structurent et s’écartent du régime aléatoire au fil de l’apprentissage.
+Plus précisément :
 
-la loi de Marchenko–Pastur joue un rôle central. Cette loi décrit la densité spectrale (Empirical Spectral Density, ESD) attendue des valeurs propres (ou singulières) d’une grande matrice aléatoire dont les entrées sont indépendantes et identiquement distribuées (i.i.d.) et de variance finie.
+-   Si les valeurs singulieres des matrices de poids restent dans l'intervalle $[\sqrt{a},\sqrt{b}]$ (Ce qui équivaut au fait que les valeurs propres des matrices de covariances $Y_n$ restent dans l'intervalle \[a,b\]) on est dans le bruit. La distribution est purement aléatoire, ça signifie que la matrice ne contient aucune information, ni structure cachée.
 
-## Running Code
+-   Si elle s'écartent de cet intervalle, on observe du signal. On peut déduire que l'algorithme a commencé à apprendre des données, les poids ont été mis à jours en fonction, et l'aléa est perdu peu à peu
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+-   Des valeurs isolées (outliers) signalent de la structure apprise. la structure devient utile.
 
-```{r}
-1 + 1
+-   Cependant, si on observe des valeurs propres extrèmement éloignées du spectre, cela peu indiquer un surapprentissage
+
+-   En somme, le spectre de Marchenko–Pastur \[a,b\] est un indicateur théorique qui nous permettra de savoir à quel point les poids sont utiles pour la compréhension des données ou aléatoires.
+
+Ce projet s’appuie sur cette intuition pour analyser les matrices de poids d’un perceptron multicouche (MLP) entraîné sur le jeu de données MNIST. À différentes étapes de l'entraînement. Les matrices de poids de chaque couche seront sauvegardées. Leurs valeurs singulières seront alors calculées, et leur densité spectrale empirique (Empirical Spectral Density, ESD) sera tracée. Ces spectres seront ensuite comparés à la densité théorique de Marchenko–Pastur, afin de mieux comprendre dans quelle mesure les matrices de poids d’un réseau profond se structurent et s’écartent de l'aléatoire au fil de l’apprentissage.
+
+# Structure des matrices de poids
+
+### Rappel important pour les calculs
+
+Le jeu de données MNIST contient des images en niveaux de gris représentant des chiffres manuscrits allant de 0 à 9. Chaque image est de taille 28 × 28 pixels, soit 784 pixels au total. Chaque pixel prend une valeur entre 0 (noir) et 255 (blanc).
+
+L’objectif est de classer ces images en **10 classes** correspondant aux chiffres de 0 à 9.
+
+### structure interne des couches
+
+Pour notre projet, nous utilisons un réseau de neurones entièrement connecté (MLP) composé de quatre couches linéaires (C'est à dire sans convolution).
+
+Nous faisons les choix suivants (sans perte de généralité) :
+
+```{r structure-des-couches, echo=FALSE}
+reseau_couches <- data.frame(
+  Couche = c("Couche 1 (entrée)", "Couche 2", "Couche 3", "Couche 4 (sortie)"),
+  Taille_entree = c(784, 512, 256, 128),
+  Taille_sortie = c(512, 256, 128, 10),
+  Matrice = c("W1", "W2", "W3", "W4"),
+  Dimensions  = c("512 x 784", "256 x 512", "128 x 256", "10 x 128")
+)
+
+reseau_couches%>%
+  t %>%
+  kable()
+
 ```
 
-You can add options to executable code like this
+Chaque matrice de poids $W_i$ ​ représente les connexions entre les neurones de la couche précédente et ceux de la couche suivante. Ces matrices sont au cœur de notre étude, car elles évoluent pendant l'entraînement et portent potentiellement des signatures statistiques que nous analyserons à l’aide de la théorie des matrices aléatoires.
 
-```{r echo=TRUE}
-#| echo: false
-2 * 2
-```
+Durant l'apprentissage, les $W_i$ se mettent à jour progressivement en fonction des résultats des algorithmes de retropropagation du gradian \[3\]. La session suivante consiste à calculer l'intervalle $[a_i,b_i]$
+
+de l'équation (1) pour chacune des couches
+
+-   **La première couche :**
+
+    sachant que $dim(W_1) = 512 \times 784$ , $q = \frac{512}{784}  = \frac{32}{49} \approx 0.653$
+
+    $a_1 \approx \sigma^2 (1-\sqrt{0.653})^2 \approx 0.037 \sigma^2$
+
+    $b_1 \approx \sigma^2 (1+\sqrt{0.653})^2 \approx 3.27 \sigma^2$
 
 ### Références
 
 \[1\] BAI, Zhidong et SILVERSTEIN, Jack W., *Spectral analysis of large dimensional random matrices*, 2e éd., New York, Springer, 2010. (Springer Series in Statistics)
+
+\[2\] TAO, Terence, *Topics in Random Matrix Theory*, Providence (RI), American Mathematical Society, 2012. (Graduate Studies in Mathematics, vol. 132)
+
+\[3\] COUILLET, Romain et LIAO, Zhenyu, *Random Matrix Methods for Machine Learning*, manuscrit non publié, 19 octobre 2022.
