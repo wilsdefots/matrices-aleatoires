@@ -1,26 +1,40 @@
 ---
 title: "Matrices Aléatoires"
-author: "Wilson F."
-format: html
+author: " Wilson F."
+format: 
+  html:
+    toc: true
+    toc-title: "Plan"
 editor: visual
 ---
 
 ```{r librairies, echo=FALSE,warning=FALSE, include=FALSE}
 library(tidyverse)
 library(knitr)
+library(tibble)
 
 ```
+
+# Démarches réalisées pour l'obtention du projet
+
+Dans le cadre de ma formation, j’ai manifesté mon intérêt à réaliser un projet d’été en adressant un courriel à la direction du programme. Cette initiative visait à approfondir et à mettre en application les concepts étudiés dans le cours d’Apprentissage machine, en les reliant à la théorie des matrices aléatoires, un champ d’étude mathématique riche qui offre des perspectives intéressantes pour mieux comprendre le fonctionnement interne des réseaux de neurones. Plus précisément, le projet s’intéresse à l’évolution de la distribution des valeurs propres des matrices de poids des différentes couches d’un perceptron durant son entraînement.
+
+Ce projet me permettra également de mobiliser les notions abordées dans les cours de visualisation, d’introduction à l’intelligence d’affaires, de traitement statistique des données massives et d’outils de programmation pour la science des données.
+
+La direction a accepté ma proposition, sous réserve que je trouve un enseignant disposé à assurer l’encadrement du projet. À cet effet, j’ai sollicité M. Aurélin Nicosia, qui a accepté d’assumer ce rôle. Par la suite, nous avons complété les documents requis et élaboré un plan d’action précisant les objectifs à atteindre ainsi que les modalités de réalisation du projet.
+
+# Sujet : Exploration des valeurs propres matrices de poids dans les réseaux de neurones
 
 # Contexte
 
 Les réseaux de neurones profonds (DNN) sont au cœur des avancées récentes en intelligence artificielle. Malgré leurs performances remarquables, les fondements théoriques expliquant leur efficacité demeurent partiellement compris. En particulier, la structure interne des matrices de poids et leur évolution au cours de l’apprentissage font l’objet d’un intérêt croissant dans la communauté scientifique.
 
-C’est dans ce contexte que la théorie des matrices aléatoires (Random Matrix Theory, RMT) s’avère particulièrement pertinente ; elle fournit des outils puissants pour analyser le comportement statistique de grandes matrices, notamment à travers l’étude de leurs valeurs propres ou valeurs singulières. Un résultat fondamental de cette théorie est la loi de Marchenko–Pastur, qui décrit la densité limite du spectre des matrices de covariance issues de matrices aléatoires à grande dimension.
+C’est dans ce contexte que la théorie des matrices aléatoires (Random Matrix Theory, RMT) s’avère particulièrement pertinente ; elle fournit des outils puissants pour analyser le comportement statistique de grandes matrices, notamment à travers l’étude de leurs valeurs propres ou valeurs singulières. Un résultat fondamental de cette théorie est la loi de Marchenko–Pastur *\[1\]*, qui décrit la densité limite du spectre des matrices de covariance issues de matrices aléatoires à grande dimension.
 
-Plus précisément, si X est une matrice aléatoire de taille $n \times p$ , dont les entrées sont indépendantes, identiquement distribuées, d'espérance nulle et de variance finie $\sigma^2$, alors, lorsque $n,p \rightarrow \infty$, avec $\frac{n}{p} \rightarrow q \in (0,\infty)$, la matrice de covariance $Y_n = \frac{1}{n}XX^T$ a un spectre dont la distribution limite suit la loi de Marchenko–Pastur. La densité de cette loi est donnée par :
+Plus précisément, si X est une matrice aléatoire de taille $p \times n$ , dont les entrées sont indépendantes, identiquement distribuées, d'espérance nulle et de variance finie $\sigma^2$, alors, lorsque $p,n \rightarrow \infty$, avec $\frac{n}{p} \rightarrow q \in (0,\infty)$, la matrice de covariance $Y_n = \frac{1}{n}XX^T$ a un spectre dont la distribution limite suit la loi de Marchenko–Pastur. La densité de cette loi est donnée par :
 
 $$
-p_q(x) = 
+f_q(x) = 
 \begin{cases}
 \displaystyle
 \frac{1}{2\pi x q \sigma^2} \sqrt{(b - x)(x - a)} & \text{si } a \leq x \leq b \\
@@ -47,15 +61,29 @@ Plus précisément :
 
 Ce projet s’appuie sur cette intuition pour analyser les matrices de poids d’un perceptron multicouche (MLP) entraîné sur le jeu de données MNIST. À différentes étapes de l'entraînement. Les matrices de poids de chaque couche seront sauvegardées. Leurs valeurs singulières seront alors calculées, et leur densité spectrale empirique (Empirical Spectral Density, ESD) sera tracée. Ces spectres seront ensuite comparés à la densité théorique de Marchenko–Pastur, afin de mieux comprendre dans quelle mesure les matrices de poids d’un réseau profond se structurent et s’écartent de l'aléatoire au fil de l’apprentissage.
 
+# Objectifs
+
+L'objectif principal de ce projet est de comprendre et analyser l'évolution de la distribution des valeurs propres des matrices de poids d'un perceptron multicouche pendant l'entrainement, et comparer cette distribution à celle prédite par la fonction de densité de Marchenko-pastur, pour les matrices aléatoires.
+
+Pour cela nous allons :
+
+-   Construire un perceptron multicouche et l'entrainer sur le jeu de données MNIST, en sauvegardant les matrices de poids lors de l'entrainement ;
+
+-   Calculer les valeurs propres/singulières de ces matrices ;
+
+-   Comparer visuellement les distributions des matrices de poids avec la distribution théorique issue de la loi de Marchenko-pastur
+
+-   Interpréter les résultats
+
 # Structure des matrices de poids
 
-### Rappel important pour les calculs
+## Rappel important pour les calculs
 
 Le jeu de données MNIST contient des images en niveaux de gris représentant des chiffres manuscrits allant de 0 à 9. Chaque image est de taille 28 × 28 pixels, soit 784 pixels au total. Chaque pixel prend une valeur entre 0 (noir) et 255 (blanc).
 
 L’objectif est de classer ces images en **10 classes** correspondant aux chiffres de 0 à 9.
 
-### structure interne des couches
+## structure interne des couches
 
 Pour notre projet, nous utilisons un réseau de neurones entièrement connecté (MLP) composé de quatre couches linéaires (C'est à dire sans convolution).
 
@@ -82,15 +110,76 @@ Durant l'apprentissage, les $W_i$ se mettent à jour progressivement en fonction
 
 de l'équation (1) pour chacune des couches
 
+```{r intervalle, echo=FALSE}
+#premiere couche
+q1 = 32/49
+a1 = (1-sqrt(q1))**2
+b1 = (1+sqrt(q1))**2
+
+#deuxieme couche
+q2 = 256/512
+a2 = (1-sqrt(q2))**2
+b2 = (1+sqrt(q2))**2
+
+#troisieme couche
+q3 = 128/256
+a3 = (1-sqrt(q3))**2
+b3 = (1+sqrt(q3))**2
+
+#quatrieme couche
+q4 = 10/128
+a4 = (1-sqrt(q4))**2
+b4 = (1+sqrt(q4))**2
+
+
+```
+
 -   **La première couche :**
 
-    sachant que $dim(W_1) = 512 \times 784$ , $q = \frac{512}{784}  = \frac{32}{49} \approx 0.653$
+    sachant que $dim(W_1) = 512 \times 784$,
 
-    $a_1 \approx \sigma^2 (1-\sqrt{0.653})^2 \approx 0.037 \sigma^2$
+    \[a,b\] $\approx [$ `r a1` $\sigma^2$ , `r b1`$\sigma^2 ]$
 
-    $b_1 \approx \sigma^2 (1+\sqrt{0.653})^2 \approx 3.27 \sigma^2$
+-   **La deuxieme couche :**
 
-### Références
+    $dim(W_2) = 256\times 512$
+
+    \[a,b\] $\approx [$ `r a2` $\sigma^2$ , `r b2`$\sigma^2 ]$
+
+-   **La troisième couche :**
+
+    $dim(W_3) = 128\times 256$
+
+    \[a,b\] $\approx [$ `r a3` $\sigma^2$ , `r b3`$\sigma^2 ]$
+
+-   **La quatrième couche :**
+
+    $dim(W_4) = 10\times 128$
+
+    \[a,b\] $\approx [$ `r a4` $\sigma^2$ , `r b4`$\sigma^2 ]$
+
+-   Remarque : Pour les simulations, on prendra $\sigma = 1$
+
+## PMC
+
+le travail est disponible dans mon compte google colab, via le lien suivant :
+
+<https://colab.research.google.com/drive/1A3jfmFXuzGMHtEUyoHNi8TFfOnPvzJPO#scrollTo=HFRsFCDYjOem>
+
+
+# Resultats et conclusions :
+
+ci dessous les résultats de notre étude 
+
+```{r resultat, echo=FALSE}
+include_graphics("fig/spectres_par_epoque_et_couche.png")
+
+```
+
+
+
+
+# Références
 
 \[1\] BAI, Zhidong et SILVERSTEIN, Jack W., *Spectral analysis of large dimensional random matrices*, 2e éd., New York, Springer, 2010. (Springer Series in Statistics)
 

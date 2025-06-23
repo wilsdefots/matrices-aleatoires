@@ -67,10 +67,29 @@ window.Quarto = {
 
 </head>
 
-<body class="fullcontent">
+<body>
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Plan</h2>
+   
+  <ul>
+  <li><a href="#démarches-réalisées-pour-lobtention-du-projet" id="toc-démarches-réalisées-pour-lobtention-du-projet" class="nav-link active" data-scroll-target="#démarches-réalisées-pour-lobtention-du-projet">Démarches réalisées pour l’obtention du projet</a></li>
+  <li><a href="#sujet-exploration-des-valeurs-propres-matrices-de-poids-dans-les-réseaux-de-neurones" id="toc-sujet-exploration-des-valeurs-propres-matrices-de-poids-dans-les-réseaux-de-neurones" class="nav-link" data-scroll-target="#sujet-exploration-des-valeurs-propres-matrices-de-poids-dans-les-réseaux-de-neurones">Sujet : Exploration des valeurs propres matrices de poids dans les réseaux de neurones</a></li>
+  <li><a href="#contexte" id="toc-contexte" class="nav-link" data-scroll-target="#contexte">Contexte</a></li>
+  <li><a href="#objectifs" id="toc-objectifs" class="nav-link" data-scroll-target="#objectifs">Objectifs</a></li>
+  <li><a href="#structure-des-matrices-de-poids" id="toc-structure-des-matrices-de-poids" class="nav-link" data-scroll-target="#structure-des-matrices-de-poids">Structure des matrices de poids</a>
+  <ul class="collapse">
+  <li><a href="#rappel-important-pour-les-calculs" id="toc-rappel-important-pour-les-calculs" class="nav-link" data-scroll-target="#rappel-important-pour-les-calculs">Rappel important pour les calculs</a></li>
+  <li><a href="#structure-interne-des-couches" id="toc-structure-interne-des-couches" class="nav-link" data-scroll-target="#structure-interne-des-couches">structure interne des couches</a></li>
+  <li><a href="#pmc" id="toc-pmc" class="nav-link" data-scroll-target="#pmc">PMC</a></li>
+  </ul></li>
+  <li><a href="#resultats-et-conclusions" id="toc-resultats-et-conclusions" class="nav-link" data-scroll-target="#resultats-et-conclusions">Resultats et conclusions :</a></li>
+  <li><a href="#références" id="toc-références" class="nav-link" data-scroll-target="#références">Références</a></li>
+  </ul>
+</nav>
+</div>
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -98,13 +117,22 @@ window.Quarto = {
 </header>
 
 
+<section id="démarches-réalisées-pour-lobtention-du-projet" class="level1">
+<h1>Démarches réalisées pour l’obtention du projet</h1>
+<p>Dans le cadre de ma formation, j’ai manifesté mon intérêt à réaliser un projet d’été en adressant un courriel à la direction du programme. Cette initiative visait à approfondir et à mettre en application les concepts étudiés dans le cours d’Apprentissage machine, en les reliant à la théorie des matrices aléatoires, un champ d’étude mathématique riche qui offre des perspectives intéressantes pour mieux comprendre le fonctionnement interne des réseaux de neurones. Plus précisément, le projet s’intéresse à l’évolution de la distribution des valeurs propres des matrices de poids des différentes couches d’un perceptron durant son entraînement.</p>
+<p>Ce projet me permettra également de mobiliser les notions abordées dans les cours de visualisation, d’introduction à l’intelligence d’affaires, de traitement statistique des données massives et d’outils de programmation pour la science des données.</p>
+<p>La direction a accepté ma proposition, sous réserve que je trouve un enseignant disposé à assurer l’encadrement du projet. À cet effet, j’ai sollicité M. Aurélin Nicosia, qui a accepté d’assumer ce rôle. Par la suite, nous avons complété les documents requis et élaboré un plan d’action précisant les objectifs à atteindre ainsi que les modalités de réalisation du projet.</p>
+</section>
+<section id="sujet-exploration-des-valeurs-propres-matrices-de-poids-dans-les-réseaux-de-neurones" class="level1">
+<h1>Sujet : Exploration des valeurs propres matrices de poids dans les réseaux de neurones</h1>
+</section>
 <section id="contexte" class="level1">
 <h1>Contexte</h1>
 <p>Les réseaux de neurones profonds (DNN) sont au cœur des avancées récentes en intelligence artificielle. Malgré leurs performances remarquables, les fondements théoriques expliquant leur efficacité demeurent partiellement compris. En particulier, la structure interne des matrices de poids et leur évolution au cours de l’apprentissage font l’objet d’un intérêt croissant dans la communauté scientifique.</p>
-<p>C’est dans ce contexte que la théorie des matrices aléatoires (Random Matrix Theory, RMT) s’avère particulièrement pertinente ; elle fournit des outils puissants pour analyser le comportement statistique de grandes matrices, notamment à travers l’étude de leurs valeurs propres ou valeurs singulières. Un résultat fondamental de cette théorie est la loi de Marchenko–Pastur, qui décrit la densité limite du spectre des matrices de covariance issues de matrices aléatoires à grande dimension.</p>
-<p>Plus précisément, si X est une matrice aléatoire de taille <span class="math inline">\(n \times p\)</span> , dont les entrées sont indépendantes, identiquement distribuées, d’espérance nulle et de variance finie <span class="math inline">\(\sigma^2\)</span>, alors, lorsque <span class="math inline">\(n,p \rightarrow \infty\)</span>, avec <span class="math inline">\(\frac{n}{p} \rightarrow q \in (0,\infty)\)</span>, la matrice de covariance <span class="math inline">\(Y_n = \frac{1}{n}XX^T\)</span> a un spectre dont la distribution limite suit la loi de Marchenko–Pastur. La densité de cette loi est donnée par :</p>
+<p>C’est dans ce contexte que la théorie des matrices aléatoires (Random Matrix Theory, RMT) s’avère particulièrement pertinente ; elle fournit des outils puissants pour analyser le comportement statistique de grandes matrices, notamment à travers l’étude de leurs valeurs propres ou valeurs singulières. Un résultat fondamental de cette théorie est la loi de Marchenko–Pastur <em>[1]</em>, qui décrit la densité limite du spectre des matrices de covariance issues de matrices aléatoires à grande dimension.</p>
+<p>Plus précisément, si X est une matrice aléatoire de taille <span class="math inline">\(p \times n\)</span> , dont les entrées sont indépendantes, identiquement distribuées, d’espérance nulle et de variance finie <span class="math inline">\(\sigma^2\)</span>, alors, lorsque <span class="math inline">\(p,n \rightarrow \infty\)</span>, avec <span class="math inline">\(\frac{n}{p} \rightarrow q \in (0,\infty)\)</span>, la matrice de covariance <span class="math inline">\(Y_n = \frac{1}{n}XX^T\)</span> a un spectre dont la distribution limite suit la loi de Marchenko–Pastur. La densité de cette loi est donnée par :</p>
 <p><span class="math display">\[
-p_q(x) =
+f_q(x) =
 \begin{cases}
 \displaystyle
 \frac{1}{2\pi x q \sigma^2} \sqrt{(b - x)(x - a)} &amp; \text{si } a \leq x \leq b \\
@@ -124,15 +152,26 @@ p_q(x) =
 </ul>
 <p>Ce projet s’appuie sur cette intuition pour analyser les matrices de poids d’un perceptron multicouche (MLP) entraîné sur le jeu de données MNIST. À différentes étapes de l’entraînement. Les matrices de poids de chaque couche seront sauvegardées. Leurs valeurs singulières seront alors calculées, et leur densité spectrale empirique (Empirical Spectral Density, ESD) sera tracée. Ces spectres seront ensuite comparés à la densité théorique de Marchenko–Pastur, afin de mieux comprendre dans quelle mesure les matrices de poids d’un réseau profond se structurent et s’écartent de l’aléatoire au fil de l’apprentissage.</p>
 </section>
+<section id="objectifs" class="level1">
+<h1>Objectifs</h1>
+<p>L’objectif principal de ce projet est de comprendre et analyser l’évolution de la distribution des valeurs propres des matrices de poids d’un perceptron multicouche pendant l’entrainement, et comparer cette distribution à celle prédite par la fonction de densité de Marchenko-pastur, pour les matrices aléatoires.</p>
+<p>Pour cela nous allons :</p>
+<ul>
+<li><p>Construire un perceptron multicouche et l’entrainer sur le jeu de données MNIST, en sauvegardant les matrices de poids lors de l’entrainement ;</p></li>
+<li><p>Calculer les valeurs propres/singulières de ces matrices ;</p></li>
+<li><p>Comparer visuellement les distributions des matrices de poids avec la distribution théorique issue de la loi de Marchenko-pastur</p></li>
+<li><p>Interpréter les résultats</p></li>
+</ul>
+</section>
 <section id="structure-des-matrices-de-poids" class="level1">
 <h1>Structure des matrices de poids</h1>
-<section id="rappel-important-pour-les-calculs" class="level3">
-<h3 class="anchored" data-anchor-id="rappel-important-pour-les-calculs">Rappel important pour les calculs</h3>
+<section id="rappel-important-pour-les-calculs" class="level2">
+<h2 class="anchored" data-anchor-id="rappel-important-pour-les-calculs">Rappel important pour les calculs</h2>
 <p>Le jeu de données MNIST contient des images en niveaux de gris représentant des chiffres manuscrits allant de 0 à 9. Chaque image est de taille 28 × 28 pixels, soit 784 pixels au total. Chaque pixel prend une valeur entre 0 (noir) et 255 (blanc).</p>
 <p>L’objectif est de classer ces images en <strong>10 classes</strong> correspondant aux chiffres de 0 à 9.</p>
 </section>
-<section id="structure-interne-des-couches" class="level3">
-<h3 class="anchored" data-anchor-id="structure-interne-des-couches">structure interne des couches</h3>
+<section id="structure-interne-des-couches" class="level2">
+<h2 class="anchored" data-anchor-id="structure-interne-des-couches">structure interne des couches</h2>
 <p>Pour notre projet, nous utilisons un réseau de neurones entièrement connecté (MLP) composé de quatre couches linéaires (C’est à dire sans convolution).</p>
 <p>Nous faisons les choix suivants (sans perte de généralité) :</p>
 <div class="cell">
@@ -190,17 +229,44 @@ p_q(x) =
 <p>de l’équation (1) pour chacune des couches</p>
 <ul>
 <li><p><strong>La première couche :</strong></p>
-<p>sachant que <span class="math inline">\(dim(W_1) = 512 \times 784\)</span> , <span class="math inline">\(q = \frac{512}{784}  = \frac{32}{49} \approx 0.653\)</span></p>
-<p><span class="math inline">\(a_1 \approx \sigma^2 (1-\sqrt{0.653})^2 \approx 0.037 \sigma^2\)</span></p>
-<p><span class="math inline">\(b_1 \approx \sigma^2 (1+\sqrt{0.653})^2 \approx 3.27 \sigma^2\)</span></p></li>
+<p>sachant que <span class="math inline">\(dim(W_1) = 512 \times 784\)</span>,</p>
+<p>[a,b] <span class="math inline">\(\approx [\)</span> 0.0368172 <span class="math inline">\(\sigma^2\)</span> , 3.2693053<span class="math inline">\(\sigma^2 ]\)</span></p></li>
+<li><p><strong>La deuxieme couche :</strong></p>
+<p><span class="math inline">\(dim(W_2) = 256\times 512\)</span></p>
+<p>[a,b] <span class="math inline">\(\approx [\)</span> 0.0857864 <span class="math inline">\(\sigma^2\)</span> , 2.9142136<span class="math inline">\(\sigma^2 ]\)</span></p></li>
+<li><p><strong>La troisième couche :</strong></p>
+<p><span class="math inline">\(dim(W_3) = 128\times 256\)</span></p>
+<p>[a,b] <span class="math inline">\(\approx [\)</span> 0.0857864 <span class="math inline">\(\sigma^2\)</span> , 2.9142136<span class="math inline">\(\sigma^2 ]\)</span></p></li>
+<li><p><strong>La quatrième couche :</strong></p>
+<p><span class="math inline">\(dim(W_4) = 10\times 128\)</span></p>
+<p>[a,b] <span class="math inline">\(\approx [\)</span> 0.519108 <span class="math inline">\(\sigma^2\)</span> , 1.637142<span class="math inline">\(\sigma^2 ]\)</span></p></li>
+<li><p>Remarque : Pour les simulations, on prendra <span class="math inline">\(\sigma = 1\)</span></p></li>
 </ul>
 </section>
-<section id="références" class="level3">
-<h3 class="anchored" data-anchor-id="références">Références</h3>
+<section id="pmc" class="level2">
+<h2 class="anchored" data-anchor-id="pmc">PMC</h2>
+<p>le travail est disponible dans mon compte google colab, via le lien suivant :</p>
+<p><a href="https://colab.research.google.com/drive/1A3jfmFXuzGMHtEUyoHNi8TFfOnPvzJPO#scrollTo=HFRsFCDYjOem" class="uri">https://colab.research.google.com/drive/1A3jfmFXuzGMHtEUyoHNi8TFfOnPvzJPO#scrollTo=HFRsFCDYjOem</a></p>
+</section>
+</section>
+<section id="resultats-et-conclusions" class="level1">
+<h1>Resultats et conclusions :</h1>
+<p>ci dessous les résultats de notre étude</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="fig/spectres_par_epoque_et_couche.png" class="img-fluid figure-img" width="2000"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="références" class="level1">
+<h1>Références</h1>
 <p>[1] BAI, Zhidong et SILVERSTEIN, Jack W., <em>Spectral analysis of large dimensional random matrices</em>, 2e éd., New York, Springer, 2010. (Springer Series in Statistics)</p>
 <p>[2] TAO, Terence, <em>Topics in Random Matrix Theory</em>, Providence (RI), American Mathematical Society, 2012. (Graduate Studies in Mathematics, vol.&nbsp;132)</p>
 <p>[3] COUILLET, Romain et LIAO, Zhenyu, <em>Random Matrix Methods for Machine Learning</em>, manuscrit non publié, 19 octobre 2022.</p>
-</section>
 </section>
 
 </main>
