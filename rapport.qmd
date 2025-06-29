@@ -6,6 +6,7 @@ format:
     toc: true
     toc-title: "Plan"
 editor: visual
+embed-resources: true
 ---
 
 ```{r librairies, echo=FALSE,warning=FALSE, include=FALSE}
@@ -25,13 +26,13 @@ La direction a accepté ma proposition, sous réserve que je trouve un enseignan
 
 # Sujet : Exploration des valeurs propres matrices de poids dans les réseaux de neurones
 
-# Contexte
+## Contexte
 
-Les réseaux de neurones profonds (DNN) sont au cœur des avancées récentes en intelligence artificielle. Malgré leurs performances remarquables, les fondements théoriques expliquant leur efficacité demeurent partiellement compris. En particulier, la structure interne des matrices de poids et leur évolution au cours de l’apprentissage font l’objet d’un intérêt croissant dans la communauté scientifique.
+Les réseaux de neurones profonds sont au cœur des avancées récentes en intelligence artificielle. Malgré leurs performances remarquables, les fondements théoriques expliquant leur efficacité demeurent partiellement compris. En particulier, la structure interne des matrices de poids et leur évolution au cours de l’apprentissage font l’objet d’un intérêt croissant dans la communauté scientifique.
 
-C’est dans ce contexte que la théorie des matrices aléatoires (Random Matrix Theory, RMT) s’avère particulièrement pertinente ; elle fournit des outils puissants pour analyser le comportement statistique de grandes matrices, notamment à travers l’étude de leurs valeurs propres ou valeurs singulières. Un résultat fondamental de cette théorie est la loi de Marchenko–Pastur *\[1\]*, qui décrit la densité limite du spectre des matrices de covariance issues de matrices aléatoires à grande dimension.
+C’est dans ce contexte que la théorie des matrices aléatoires (Random Matrix Theory, RMT) s’avère particulièrement pertinente ; elle fournit des outils puissants pour analyser le comportement statistique de grandes matrices, notamment à travers l’étude de leurs valeurs propres (ou des valeurs singulières). Un résultat fondamental de cette théorie est la loi de Marchenko–Pastur *\[1\]*, qui décrit la densité limite du spectre des matrices de covariance issues de matrices aléatoires à grande dimension.
 
-Plus précisément, si X est une matrice aléatoire de taille $p \times n$ , dont les entrées sont indépendantes, identiquement distribuées, d'espérance nulle et de variance finie $\sigma^2$, alors, lorsque $p,n \rightarrow \infty$, avec $\frac{n}{p} \rightarrow q \in (0,\infty)$, la matrice de covariance $Y_n = \frac{1}{n}XX^T$ a un spectre dont la distribution limite suit la loi de Marchenko–Pastur. La densité de cette loi est donnée par :
+Plus précisément, si X est une matrice aléatoire de taille $p \times n$ , dont les entrées sont indépendantes, identiquement distribuées (iid), d'espérance nulle et de variance finie $\sigma^2$, alors, lorsque $p,n \rightarrow \infty$, avec $\frac{n}{p} \rightarrow q \in (0,\infty)$, la matrice de covariance $Y_n = \frac{1}{n}XX^T$ a un spectre dont la distribution limite suit la loi de Marchenko–Pastur. La densité de cette loi est donnée par :
 
 $$
 f_q(x) = 
@@ -44,6 +45,55 @@ f_q(x) =
 $$
 
 avec $a = \sigma^2 (1-\sqrt{q})^2$ et $b = \sigma ^2(1+\sqrt{q})^2$
+
+## Exemple
+
+Si *q = 0.5* et \$\\sigma\$ = 1 on a :
+
+```{r exemple, echo=FALSE}
+q=0.5
+sigma = 1
+a = sigma**2 *(1-sqrt(q))**2
+b = sigma**2 *(1+sqrt(q))**2
+
+```
+
+**a = `r round(a,2)`**
+
+**b = `r round(b,2)`**
+
+et la fonction de densité sera donnée par : $$
+f_{0.5}(x) = 
+\begin{cases}
+\displaystyle
+\frac{1}{\pi *x} \sqrt{(b - x)(x - a)} & \text{si } a \leq x \leq b \\
+0 & \text{sinon}
+\end{cases}
+\tag{2}
+$$ et sa courbe représentative est la suivante :
+
+```{r courbe représentative, fig.height=4.5, echo=FALSE, warning=FALSE}
+
+f <- function(x) {
+  y <- sqrt((b - x) * (x - a)) / (pi * x)
+  y[x < a | x > b] <- 0  
+  return(y)
+}
+
+X <- seq(0, 4, by = 0.01)
+Y <- f(X)
+
+df <- data.frame(X, Y)
+
+
+ggplot(df, aes(x = X, y = Y)) +
+  geom_line(color = "blue") +
+  labs(title = "Densité de Marchenko–Pastur, q = 0.5",
+       x = NULL, y = NULL) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+```
 
 Cette distribution peut être interprétée comme le "comportement attendu" d’une matrice de covariance purement aléatoire, sans structure ni apprentissage. Ainsi, dans le contexte des réseaux de neurones, tout écart entre le spectre empirique des matrices de poids et la loi de Marchenko–Pastur peut signaler la présence de structure apprise, d’information ou de régularité.
 
@@ -82,6 +132,11 @@ Pour cela nous allons :
 Le jeu de données MNIST contient des images en niveaux de gris représentant des chiffres manuscrits allant de 0 à 9. Chaque image est de taille 28 × 28 pixels, soit 784 pixels au total. Chaque pixel prend une valeur entre 0 (noir) et 255 (blanc).
 
 L’objectif est de classer ces images en **10 classes** correspondant aux chiffres de 0 à 9.
+
+```{r fashon_Mnist, echo=FALSE}
+include_graphics("fig/images_mnist.png")
+
+```
 
 ## structure interne des couches
 
@@ -166,18 +221,24 @@ le travail est disponible dans mon compte google colab, via le lien suivant :
 
 <https://colab.research.google.com/drive/1A3jfmFXuzGMHtEUyoHNi8TFfOnPvzJPO#scrollTo=HFRsFCDYjOem>
 
-
 # Resultats et conclusions :
 
-ci dessous les résultats de notre étude 
+ci dessous les résultats de notre étude
 
 ```{r resultat, echo=FALSE}
 include_graphics("fig/spectres_par_epoque_et_couche.png")
 
 ```
 
+-   Pour les couches 1 et 2, on se rend compte que, jusqu'à l'époque 3, toutes les valeurs propres sont à l'intérieur de l'intervalle \[a,b\]. À partir de la quatrième époque, elles sortent progressivement de l'intervalle, et la queue s'allonge au fur et à mesure que les époques progressent.
 
+Ceci signifie que les poids sont aléatoires jusqu'à la troisième époque, et le modèle commence à apprendre dès la quatrième époque, et cet apprentissage se renforce au cours du temps.
 
+-   Pour la troisième couche, dès la première époque, on a juste quelques valeurs qui sortent de l'intervalle, mais à mesure qu'on avance, ce comportement ne s'améliore pas jusqu'à la dixième époque. Ce qui laisse penser que, le fait que les valeurs sortent de l'intervalle, n'est pas dû au modèle appris (d'autant plus que les poids sont choisis initialement de façon aléatoire), mais juste au hasard.
+
+-   Pour la quatrième couche, aucune valeur propre n'est dans l'intervalle \[a,b\] tout le long de l'expérience. Donc le modèle a appris dès le début, malgré que les poids sont pris aléatoirement.
+
+Ce paradoxe est normal, vu que la quatrième couche est la couche de sortie, et les données du Mnist sont très faciles a apprendre par un reseau de neuronne profond. Peut être que le phénomène serait différent si on prenait des données plus bruitées.
 
 # Références
 
@@ -186,3 +247,5 @@ include_graphics("fig/spectres_par_epoque_et_couche.png")
 \[2\] TAO, Terence, *Topics in Random Matrix Theory*, Providence (RI), American Mathematical Society, 2012. (Graduate Studies in Mathematics, vol. 132)
 
 \[3\] COUILLET, Romain et LIAO, Zhenyu, *Random Matrix Methods for Machine Learning*, manuscrit non publié, 19 octobre 2022.
+
+\[4\] Levent Sagun, Léon Bottou et Yann LeCun, *EIGENVALUES OF THE HESSIAN IN DEEP LEARNING: SINGULARITY AND BEYOND, Cornell University, 22 Nov. 2010*
