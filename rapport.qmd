@@ -109,7 +109,7 @@ Plus précisément :
 
 -   En somme, le spectre de Marchenko–Pastur \[a,b\] est un indicateur théorique qui nous permettra de savoir à quel point les poids sont utiles pour la compréhension des données ou aléatoires.
 
-Ce projet s’appuie sur cette intuition pour analyser les matrices de poids d’un perceptron multicouche (MLP) entraîné sur le jeu de données MNIST. À différentes étapes de l'entraînement. Les matrices de poids de chaque couche seront sauvegardées. Leurs valeurs singulières seront alors calculées, et leur densité spectrale empirique (Empirical Spectral Density, ESD) sera tracée. Ces spectres seront ensuite comparés à la densité théorique de Marchenko–Pastur, afin de mieux comprendre dans quelle mesure les matrices de poids d’un réseau profond se structurent et s’écartent de l'aléatoire au fil de l’apprentissage.
+Ce projet s’appuie sur cette intuition pour analyser les matrices de poids d’un perceptron multicouche (MLP) entraîné sur le jeu de données Fashion-MNIST. À différentes étapes de l'entraînement. Les matrices de poids de chaque couche seront sauvegardées. Leurs valeurs singulières seront alors calculées, et leur densité spectrale empirique (Empirical Spectral Density, ESD) sera construite. Ces spectres seront ensuite comparés à la densité théorique de Marchenko–Pastur, afin de mieux comprendre dans quelle mesure les matrices de poids d’un réseau profond se structurent et s’écartent de l'aléatoire au fil de l’apprentissage.
 
 # Objectifs
 
@@ -117,21 +117,36 @@ L'objectif principal de ce projet est de comprendre et analyser l'évolution de 
 
 Pour cela nous allons :
 
--   Construire un perceptron multicouche et l'entrainer sur le jeu de données MNIST, en sauvegardant les matrices de poids lors de l'entrainement ;
+-   Construire un perceptron multicouche et l'entrainer sur le jeu de données Fashion-MNIST, en sauvegardant les matrices de poids lors de l'entrainement ;
 
 -   Calculer les valeurs propres/singulières de ces matrices ;
 
--   Comparer visuellement les distributions des matrices de poids avec la distribution théorique issue de la loi de Marchenko-pastur
+-   Comparer visuellement les distributions des matrices de poids avec la distribution théorique issue de la loi de Marchenko-pastur ;
 
--   Interpréter les résultats
+-   Interpréter les résultats.
 
 # Structure des matrices de poids
 
 ## Rappel important pour les calculs
 
-Le jeu de données MNIST contient des images en niveaux de gris représentant des chiffres manuscrits allant de 0 à 9. Chaque image est de taille 28 × 28 pixels, soit 784 pixels au total. Chaque pixel prend une valeur entre 0 (noir) et 255 (blanc).
+Le jeu de données Fashion‑MNIST contient 70000 images en niveaux de gris représentant des articles de mode, réparties en 60000 pour l'entrainement et 10000 pour le test.\
+Chaque image est de taille 28 × 28 pixels, soit 784 pixels au total. Chaque pixel prend une valeur entre 0 (noir) et 255 (blanc).
 
-L’objectif est de classer ces images en **10 classes** correspondant aux chiffres de 0 à 9.
+Ce jeu de données est inclus nativement dans la bibliothèque tensorflow.datasets.
+
+L’objectif est souvent de classer les images en 10 catégories, correspondant aux types d’articles suivants :
+
+```{r classes, echo=FALSE}
+classes <- tibble(
+  Classe = c("T-shirt/top", "Pantalon", "Pull", "Robe", "Manteau",
+             "Sandale", "Chemise", "Soulier", "Sac", "Botte"),
+  etiquette = 0:9
+)
+
+classes %>%
+  t %>%
+  kable()
+```
 
 ```{r fashon_Mnist, echo=FALSE}
 include_graphics("fig/images_mnist.png")
@@ -159,9 +174,9 @@ reseau_couches%>%
 
 ```
 
-Chaque matrice de poids $W_i$ ​ représente les connexions entre les neurones de la couche précédente et ceux de la couche suivante. Ces matrices sont au cœur de notre étude, car elles évoluent pendant l'entraînement et portent potentiellement des signatures statistiques que nous analyserons à l’aide de la théorie des matrices aléatoires.
+Chaque matrice de poids $W_i$  représente les connexions entre les neurones de la couche précédente et ceux de la couche suivante. Ces matrices sont au cœur de notre étude, car elles évoluent pendant l'entraînement et portent potentiellement des signatures statistiques que nous analyserons à l’aide de la théorie des matrices aléatoires.
 
-Durant l'apprentissage, les $W_i$ se mettent à jour progressivement en fonction des résultats des algorithmes de retropropagation du gradian \[3\]. La session suivante consiste à calculer l'intervalle $[a_i,b_i]$
+Durant l'apprentissage, les $W_i$ se mettent à jour progressivement en fonction des résultats des algorithmes de retropropagation du gradian \[3\]. La session suivante consiste à calculer l'intervalle $[a_i,b_i]$ (le Bulk)
 
 de l'équation (1) pour chacune des couches
 
@@ -193,31 +208,46 @@ b4 = (1+sqrt(q4))**2
 
     sachant que $dim(W_1) = 512 \times 784$,
 
-    \[a,b\] $\approx [$ `r a1` $\sigma^2$ , `r b1`$\sigma^2 ]$
+    \[a,b\] $\approx [$ `r round(a1,2)` $\sigma^2$ , `r round(b1,2)`$\sigma^2 ]$
 
 -   **La deuxieme couche :**
 
     $dim(W_2) = 256\times 512$
 
-    \[a,b\] $\approx [$ `r a2` $\sigma^2$ , `r b2`$\sigma^2 ]$
+    \[a,b\] $\approx [$ `r round(a2,2)` $\sigma^2$ , `r round(b2,2)`$\sigma^2 ]$
 
 -   **La troisième couche :**
 
     $dim(W_3) = 128\times 256$
 
-    \[a,b\] $\approx [$ `r a3` $\sigma^2$ , `r b3`$\sigma^2 ]$
+    \[a,b\] $\approx [$ `r round(a3,2)` $\sigma^2$ , `r round(b3,2)`$\sigma^2 ]$
 
 -   **La quatrième couche :**
 
     $dim(W_4) = 10\times 128$
 
-    \[a,b\] $\approx [$ `r a4` $\sigma^2$ , `r b4`$\sigma^2 ]$
+    \[a,b\] $\approx [$ `r round(a4,2)` $\sigma^2$ , `r round(b4,2)`$\sigma^2 ]$
+    
+- Ci-dessous, la courbe de précision de l'entraînement du perceptron sur 15 époques.
 
--   Remarque : Pour les simulations, on prendra $\sigma = 1$
+Notons que, dans l’algorithme d’apprentissage, nous avons imposé une initialisation aléatoire des poids.
+Nous avons volontairement évité d’utiliser les poids proposés par Keras, car ceux-ci sont sélectionnés après une phase d’initialisation informée, ayant déjà capté certaines régularités des données ; ils sont donc optimisés pour une convergence plus rapide.
+
+L’objectif de cette étude n’est pas d’obtenir un modèle performant. Au contraire, nous cherchons à obtenir un modèle qui apprend le plus lentement possible, afin de mieux observer l’évolution de la distribution des valeurs propres des matrices de poids au fil de l’entraînement.
+
+```{r courbe-precision, echo=FALSE}
+include_graphics("fig/Courbe_precision.png")
+
+```
+
+
+- Remarque : Pour les simulations présentées, on a choisit  $\sigma = 0.0125$
+
+Bien que les autres valeurs de $\sigma$ produisent des résultats comparables, celle ci dessus  a été privilégiée pour des considérations esthétiques ; notament pour améliorer la lisibilité des graphiques, et les interprétations plus évidentes.
 
 ## PMC
 
-le travail est disponible dans mon compte google colab, via le lien suivant :
+le notebook est disponible dans mon compte google colab, via le lien suivant :
 
 <https://colab.research.google.com/drive/1A3jfmFXuzGMHtEUyoHNi8TFfOnPvzJPO#scrollTo=HFRsFCDYjOem>
 

@@ -164,8 +164,9 @@ def construire_courbe_simple(historique):
     plt.legend()
     plt.grid(True)
     plt.ylim(0.5, 1)
-    plt.show()
     plt.savefig("Courbe_precision.png")
+    plt.show()
+
 
 construire_courbe_simple(historique_global)
 
